@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meow World</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fafaf8; color: #1a1a18; line-height: 1.7; }
+
+    header { background: #fff; border-bottom: 1px solid #e8e6df; padding: 1rem 2rem; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
+    header svg { width: 36px; height: 36px; }
+    header span { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; color: #1a1a18; }
+
+    .hero { text-align: center; padding: 4rem 1.5rem 2.5rem; }
+    .hero-cat { margin: 0 auto 1.5rem; display: block; }
+    .hero h1 { font-size: 36px; font-weight: 700; color: #1a1a18; margin-bottom: 0.75rem; letter-spacing: -0.5px; }
+    .hero p { font-size: 17px; color: #666; max-width: 440px; margin: 0 auto 2rem; }
+
+    nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
+    nav button { background: #fff; border: 1px solid #ddd; border-radius: 999px; padding: 9px 20px; font-size: 14px; color: #555; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    nav button:hover { border-color: #bbb; color: #1a1a18; }
+    nav button.active { background: #1a1a18; border-color: #1a1a18; color: #fff; }
+
+    .section { display: none; max-width: 820px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+    .section.visible { display: block; }
+    .section-title { font-size: 22px; font-weight: 600; color: #1a1a18; margin-bottom: 1.5rem; }
+
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .card { background: #fff; border: 1px solid #e8e6df; border-radius: 14px; padding: 1.25rem; transition: box-shadow 0.15s; }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+    .card-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+    .card h3 { font-size: 15px; font-weight: 600; color: #1a1a18; margin-bottom: 6px; }
+    .card p { font-size: 13.5px; color: #666; line-height: 1.65; }
+
+    .fact-list { display: flex; flex-direction: column; gap: 10px; }
+    .fact { display: flex; gap: 14px; align-items: flex-start; padding: 14px 18px; background: #fff; border: 1px solid #e8e6df; border-radius: 12px; }
+    .fact-num { font-size: 13px; font-weight: 700; color: #e07b39; min-width: 22px; padding-top: 2px; }
+    .fact-text { font-size: 14.5px; color: #333; line-height: 1.65; }
+
+    .breeds-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .breed-card { background: #fff; border: 1px solid #e8e6df; border-radius: 14px; padding: 1.25rem; text-align: center; transition: box-shadow 0.15s; }
+    .breed-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+    .breed-svg { width: 68px; height: 68px; margin: 0 auto 10px; display: block; }
+    .breed-name { font-size: 15px; font-weight: 600; color: #1a1a18; margin-bottom: 4px; }
+    .breed-trait { font-size: 12.5px; color: #888; margin-bottom: 8px; }
+    .badge { display: inline-block; font-size: 11.5px; padding: 3px 10px; border-radius: 999px; font-weight: 500; }
+    .badge-playful { background: #e6f5ee; color: #1a7a4e; }
+    .badge-calm    { background: #e6f0fb; color: #1a5faa; }
+    .badge-vocal   { background: #fef3e2; color: #9a6010; }
+    .badge-fluffy  { background: #f0eeff; color: #5b4ab5; }
+    .badge-smart   { background: #fff0ec; color: #b54030; }
+
+    .quiz-box { background: #fff; border: 1px solid #e8e6df; border-radius: 16px; padding: 1.75rem; }
+    .score-bar { font-size: 14px; color: #888; margin-bottom: 1.25rem; }
+    .score-bar span { font-weight: 600; color: #1a1a18; font-size: 16px; }
+    .quiz-q { font-size: 17px; font-weight: 600; color: #1a1a18; margin-bottom: 1.25rem; line-height: 1.5; }
+    .quiz-options { display: flex; flex-direction: column; gap: 9px; }
+    .quiz-options button { text-align: left; padding: 11px 16px; border-radius: 10px; border: 1px solid #ddd; background: #fafaf8; font-size: 14.5px; color: #333; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .quiz-options button:hover:not(:disabled) { background: #f0eee8; border-color: #bbb; }
+    .quiz-options button.correct { background: #e6f5ee; border-color: #2e9e6a; color: #1a5a3a; font-weight: 500; }
+    .quiz-options button.wrong   { background: #fdecea; border-color: #c0392b; color: #7a1a14; }
+    .quiz-result { margin-top: 1.25rem; font-size: 14px; color: #555; line-height: 1.65; padding: 12px 14px; background: #f7f6f2; border-radius: 10px; display: none; }
+    .next-btn { margin-top: 1rem; padding: 10px 24px; border-radius: 999px; border: 1px solid #ddd; background: #1a1a18; color: #fff; font-size: 14px; cursor: pointer; font-family: inherit; display: none; transition: opacity 0.15s; }
+    .next-btn:hover { opacity: 0.85; }
+
+    footer { text-align: center; padding: 2rem 1.5rem; font-size: 13px; color: #aaa; border-top: 1px solid #e8e6df; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="18" cy="23" rx="11" ry="10" fill="#d4c5a9"/>
+    <ellipse cx="18" cy="15" rx="9" ry="8" fill="#d4c5a9"/>
+    <polygon points="11,11 9,4 15,10" fill="#d4c5a9"/>
+    <polygon points="25,11 27,4 21,10" fill="#d4c5a9"/>
+    <ellipse cx="14.5" cy="15" rx="2" ry="2.5" fill="#333"/>
+    <ellipse cx="21.5" cy="15" rx="2" ry="2.5" fill="#333"/>
+    <ellipse cx="18" cy="18" rx="1.4" ry="1" fill="#f4b8c8"/>
+  </svg>
+  <span>Meow World</span>
+</header>
+
+<div class="hero">
+  <svg class="hero-cat" viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="50" cy="64" rx="26" ry="24" fill="#d4c5a9"/>
+    <ellipse cx="50" cy="44" rx="21" ry="19" fill="#d4c5a9"/>
+    <polygon points="33,30 28,14 40,27" fill="#d4c5a9"/>
+    <polygon points="67,30 72,14 60,27" fill="#d4c5a9"/>
+    <polygon points="34,28 30,16 39,26" fill="#f9c8d8"/>
+    <polygon points="66,28 70,16 61,26" fill="#f9c8d8"/>
+    <ellipse cx="42" cy="43" rx="5" ry="6" fill="white"/>
+    <ellipse cx="58" cy="43" rx="5" ry="6" fill="white"/>
+    <ellipse cx="43" cy="44" rx="3" ry="4" fill="#2a2a28"/>
+    <ellipse cx="59" cy="44" rx="3" ry="4" fill="#2a2a28"/>
+    <circle cx="43.5" cy="43" r="1" fill="white"/>
+    <circle cx="59.5" cy="43" r="1" fill="white"/>
+    <ellipse cx="50" cy="50" rx="3.5" ry="2.5" fill="#f9c8d8"/>
+    <line x1="36" y1="50" x2="20" y2="46" stroke="#b0a898" stroke-width="1.2"/>
+    <line x1="36" y1="52" x2="20" y2="52" stroke="#b0a898" stroke-width="1.2"/>
+    <line x1="36" y1="54" x2="20" y2="58" stroke="#b0a898" stroke-width="1.2"/>
+    <line x1="64" y1="50" x2="80" y2="46" stroke="#b0a898" stroke-width="1.2"/>
+    <line x1="64" y1="52" x2="80" y2="52" stroke="#b0a898" stroke-width="1.2"/>
+    <line x1="64" y1="54" x2="80" y2="58" stroke="#b0a898" stroke-width="1.2"/>
+    <path d="M 50 82 Q 68 78 74 68" stroke="#c0b8a8" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>
+  <h1>Welcome to Meow World</h1>
+  <p>Everything you love about cats — fun facts, breeds, and a trivia quiz — all in one cozy spot.</p>
+  <nav>
+    <button class="active" onclick="showSection('about', this)">About cats</button>
+    <button onclick="showSection('facts', this)">Fun facts</button>
+    <button onclick="showSection('breeds', this)">Breeds</button>
+    <button onclick="showSection('quiz', this)">Quiz</button>
+  </nav>
+</div>
+
+<!-- ABOUT -->
+<div id="about" class="section visible">
+  <p class="section-title">What makes cats so special?</p>
+  <div class="card-grid">
+    <div class="card"><span class="card-icon">😴</span><h3>Sleep champions</h3><p>Cats sleep 12–16 hours a day, conserving energy for their natural hunting instincts.</p></div>
+    <div class="card"><span class="card-icon">👃</span><h3>Super senses</h3><p>A cat's sense of smell is 14× stronger than a human's, and their hearing detects ultrasonic sounds.</p></div>
+    <div class="card"><span class="card-icon">🐾</span><h3>Silent hunters</h3><p>Cats walk on their toes and retract their claws, letting them move almost silently.</p></div>
+    <div class="card"><span class="card-icon">💬</span><h3>Purr therapy</h3><p>Cats purr at 25–150 Hz — vibrations that can promote healing in bones and muscles.</p></div>
+    <div class="card"><span class="card-icon">🌙</span><h3>Night vision</h3><p>Cats can see in light levels 6× dimmer than what humans need, thanks to the tapetum lucidum.</p></div>
+    <div class="card"><span class="card-icon">🏠</span><h3>Domesticated pals</h3><p>Cats were first domesticated around 10,000 years ago in the Near East alongside early farmers.</p></div>
+  </div>
+</div>
+
+<!-- FACTS -->
+<div id="facts" class="section">
+  <p class="section-title">10 amazing cat facts</p>
+  <div class="fact-list">
+    <div class="fact"><span class="fact-num">1</span><span class="fact-text">A group of cats is called a <strong>clowder</strong>.</span></div>
+    <div class="fact"><span class="fact-num">2</span><span class="fact-text">Cats have a specialized collarbone that lets them always land on their feet — the <strong>righting reflex</strong>.</span></div>
+    <div class="fact"><span class="fact-num">3</span><span class="fact-text">A cat's nose print is as unique as a human fingerprint.</span></div>
+    <div class="fact"><span class="fact-num">4</span><span class="fact-text">Cats can't taste sweetness — they lack the sweet taste receptor gene.</span></div>
+    <div class="fact"><span class="fact-num">5</span><span class="fact-text">The oldest known cat, <strong>Creme Puff</strong>, lived to 38 years and 3 days.</span></div>
+    <div class="fact"><span class="fact-num">6</span><span class="fact-text">Cats spend about 30–50% of their waking hours grooming themselves.</span></div>
+    <div class="fact"><span class="fact-num">7</span><span class="fact-text">A cat's whiskers are roughly as wide as its body — they use them to judge if they fit through gaps.</span></div>
+    <div class="fact"><span class="fact-num">8</span><span class="fact-text">Cats meow primarily to communicate with <em>humans</em>, not other cats.</span></div>
+    <div class="fact"><span class="fact-num">9</span><span class="fact-text">There are over <strong>73 million</strong> pet cats in the United States alone.</span></div>
+    <div class="fact"><span class="fact-num">10</span><span class="fact-text">A cat's heart beats 140–220 times per minute — about twice as fast as a human's.</span></div>
+  </div>
+</div>
+
+<!-- BREEDS -->
+<div id="breeds" class="section">
+  <p class="section-title">Popular cat breeds</p>
+  <div class="breeds-grid">
+    <div class="breed-card">
+      <svg class="breed-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="32" cy="38" rx="16" ry="14" fill="#FAC775"/>
+        <ellipse cx="32" cy="26" rx="13" ry="11" fill="#FAC775"/>
+        <polygon points="22,18 19,8 27,16" fill="#FAC775"/>
+        <polygon points="42,18 45,8 37,16" fill="#FAC775"/>
+        <ellipse cx="27" cy="25" rx="3" ry="3.5" fill="#444"/>
+        <ellipse cx="37" cy="25" rx="3" ry="3.5" fill="#444"/>
+        <ellipse cx="32" cy="29" rx="2" ry="1.5" fill="#f9c8d8"/>
+      </svg>
+      <p class="breed-name">Persian</p>
+      <p class="breed-trait">Long silky coat · round face</p>
+      <span class="badge badge-calm">calm</span>
+    </div>
+    <div class="breed-card">
+      <svg class="breed-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="32" cy="38" rx="14" ry="13" fill="#c8c4bc"/>
+        <ellipse cx="32" cy="26" rx="12" ry="10" fill="#c8c4bc"/>
+        <polygon points="23,19 20,9 27,17" fill="#c8c4bc"/>
+        <polygon points="41,19 44,9 37,17" fill="#c8c4bc"/>
+        <ellipse cx="27" cy="25" rx="3" ry="4" fill="#185FA5"/>
+        <ellipse cx="37" cy="25" rx="3" ry="4" fill="#185FA5"/>
+        <ellipse cx="32" cy="29" rx="2" ry="1.5" fill="#f9c8d8"/>
+      </svg>
+      <p class="breed-name">Siamese</p>
+      <p class="breed-trait">Blue eyes · color points</p>
+      <span class="badge badge-vocal">vocal</span>
+    </div>
+    <div class="breed-card">
+      <svg class="breed-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="32" cy="38" rx="17" ry="15" fill="#b8b4aa"/>
+        <ellipse cx="32" cy="25" rx="14" ry="12" fill="#b8b4aa"/>
+        <polygon points="21,17 18,7 28,15" fill="#b8b4aa"/>
+        <polygon points="43,17 46,7 36,15" fill="#b8b4aa"/>
+        <ellipse cx="27" cy="24" rx="3.5" ry="4" fill="#2a2a28"/>
+        <ellipse cx="37" cy="24" rx="3.5" ry="4" fill="#2a2a28"/>
+        <ellipse cx="32" cy="29" rx="2.5" ry="1.8" fill="#f9c8d8"/>
+      </svg>
+      <p class="breed-name">Maine Coon</p>
+      <p class="breed-trait">Large, tufted ears · bushy tail</p>
+      <span class="badge badge-fluffy">fluffy</span>
+    </div>
+    <div class="breed-card">
+      <svg class="breed-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="32" cy="38" rx="13" ry="12" fill="#c86840" opacity="0.8"/>
+        <ellipse cx="32" cy="26" rx="11" ry="10" fill="#c86840" opacity="0.8"/>
+        <polygon points="23,19 21,10 28,18" fill="#c86840" opacity="0.8"/>
+        <polygon points="41,19 43,10 36,18" fill="#c86840" opacity="0.8"/>
+        <ellipse cx="27" cy="25" rx="3" ry="3.8" fill="#3B6D11"/>
+        <ellipse cx="37" cy="25" rx="3" ry="3.8" fill="#3B6D11"/>
+        <ellipse cx="32" cy="29" rx="2" ry="1.5" fill="#f9c8d8"/>
+      </svg>
+      <p class="breed-name">Abyssinian</p>
+      <p class="breed-trait">Slender · ticked coat · active</p>
+      <span class="badge badge-playful">playful</span>
+    </div>
+    <div class="breed-card">
+      <svg class="breed-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="32" cy="38" rx="14" ry="13" fill="#888"/>
+        <ellipse cx="32" cy="26" rx="12" ry="10" fill="#888"/>
+        <polygon points="23,19 20,9 28,17" fill="#888"/>
+        <polygon points="41,19 44,9 36,17" fill="#888"/>
+        <ellipse cx="27" cy="25" rx="3" ry="3.5" fill="#0F6E56"/>
+        <ellipse cx="37" cy="25" rx="3" ry="3.5" fill="#0F6E56"/>
+        <ellipse cx="32" cy="29" rx="2" ry="1.5" fill="#f9c8d8"/>
+      </svg>
+      <p class="breed-name">Russian Blue</p>
+      <p class="breed-trait">Silver-blue coat · green eyes</p>
+      <span class="badge badge-smart">smart</span>
+    </div>
+    <div class="breed-card">
+      <svg class="breed-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="32" cy="38" rx="13" ry="12" fill="#f0c8b0"/>
+        <ellipse cx="32" cy="26" rx="11" ry="10" fill="#f0c8b0"/>
+        <polygon points="24,19 21,9 28,17" fill="#f0c8b0"/>
+        <polygon points="40,19 43,9 36,17" fill="#f0c8b0"/>
+        <ellipse cx="27" cy="25" rx="3" ry="3.5" fill="#2a2a28"/>
+        <ellipse cx="37" cy="25" rx="3" ry="3.5" fill="#2a2a28"/>
+        <ellipse cx="32" cy="29" rx="2" ry="1.5" fill="#f9c8d8"/>
+      </svg>
+      <p class="breed-name">Sphynx</p>
+      <p class="breed-trait">Hairless · wrinkled · warm skin</p>
+      <span class="badge badge-playful">playful</span>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="section">
+  <p class="section-title">Test your cat knowledge</p>
+  <div class="score-bar">Score: <span id="score">0</span> / 5</div>
+  <div class="quiz-box">
+    <p class="quiz-q" id="quiz-q"></p>
+    <div class="quiz-options" id="quiz-opts"></div>
+    <p class="quiz-result" id="quiz-result"></p>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next question →</button>
+  </div>
+</div>
+
+<footer>made with love for cat people everywhere 🐾</footer>
+
+<script>
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('visible');
+    btn.classList.add('active');
+    if (id === 'quiz') initQuiz();
+  }
+
+  const questions = [
+    { q: "How many hours a day do cats typically sleep?", opts: ["4–6 hours","8–10 hours","12–16 hours","18–22 hours"], correct: 2, exp: "Cats sleep 12–16 hours daily to conserve energy for hunting." },
+    { q: "What is a group of cats called?", opts: ["A pack","A clowder","A pride","A colony"], correct: 1, exp: "A group of cats is called a clowder — or sometimes a glaring!" },
+    { q: "Cats primarily meow to communicate with whom?", opts: ["Other cats","Dogs","Humans","Birds"], correct: 2, exp: "Adult cats almost exclusively meow to talk to humans, not other cats." },
+    { q: "Which sense is roughly 14× stronger in cats than humans?", opts: ["Sight","Taste","Smell","Touch"], correct: 2, exp: "Cats have ~200 million odor receptors — about 14× more than humans." },
+    { q: "At what frequency do cats typically purr?", opts: ["5–15 Hz","25–150 Hz","300–500 Hz","1000+ Hz"], correct: 1, exp: "Cats purr at 25–150 Hz, a range known to promote bone and tissue healing." }
+  ];
+
+  let current = 0, score = 0, answered = false;
+
+  function initQuiz() {
+    current = 0; score = 0; answered = false;
+    document.getElementById('score').textContent = 0;
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    if (current >= questions.length) {
+      document.getElementById('quiz-q').textContent = "Quiz complete!";
+      document.getElementById('quiz-opts').innerHTML = '';
+      const res = document.getElementById('quiz-result');
+      res.textContent = "You scored " + score + " out of 5. " + (score >= 4 ? "Purr-fect!" : score >= 2 ? "Not bad, keep learning!" : "More cat time needed!");
+      res.style.display = 'block';
+      const nb = document.getElementById('next-btn');
+      nb.textContent = "Play again";
+      nb.style.display = 'inline-block';
+      nb.onclick = initQuiz;
+      return;
+    }
+    const q = questions[current];
+    document.getElementById('quiz-q').textContent = q.q;
+    document.getElementById('quiz-result').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'none';
+    answered = false;
+    const optsEl = document.getElementById('quiz-opts');
+    optsEl.innerHTML = '';
+    q.opts.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.onclick = () => answer(i);
+      optsEl.appendChild(btn);
+    });
+  }
+
+  function answer(i) {
+    if (answered) return;
+    answered = true;
+    const q = questions[current];
+    const btns = document.querySelectorAll('.quiz-options button');
+    btns.forEach(b => b.disabled = true);
+    btns[q.correct].classList.add('correct');
+    if (i !== q.correct) btns[i].classList.add('wrong');
+    else { score++; document.getElementById('score').textContent = score; }
+    const res = document.getElementById('quiz-result');
+    res.textContent = (i === q.correct ? "✓ Correct! " : "✗ Not quite. ") + q.exp;
+    res.style.display = 'block';
+    document.getElementById('next-btn').style.display = 'inline-block';
+  }
+
+  function nextQuestion() { current++; renderQuestion(); }
+
+  initQuiz();
+</script>
+</body>
+</html>
